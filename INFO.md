@@ -50,16 +50,18 @@ Video settings. Takes parameters on `A` and `C`. (`A` selects subcommand).
 
 ### `0x14`, serial port
 Reads or writes a single byte to the serial port. An alternative method exists: [I/O Ports](#io-ports)
-(For some reason `ECX` **needs** to be zero?)
+Use `DX` to choose port.
 
-| `AH`   | Description                  |
-| ------ | ---------------------------- |
-| 0x01   | Initialize                   |
-| 0x02   | Transmit character on `AL`   |
-| 0x03   | Receive character            |
-| 0x04   | Status                       |
+| `AH`   | Description          |
+| ------ | -------------------- |
+| 0x01   | Initialize           |
+| 0x02   | Transmit character   |
+| 0x03   | Receive character    |
+| 0x04   | Status               |
 
+The character send/received is stored in `AL`
 
+More information on [Grandidierite - Bios Interrupts - Int 14h]
 
 # Registers
 ## General purpose
@@ -213,3 +215,4 @@ Here `rng` is a global variable (`rng: resb 1`) that initially holds the seed (A
 [OSDev - PS/2 - Commands]: https://wiki.osdev.org/PS/2_Keyboard#Commands
 [OSDev - Serial Ports]: https://wiki.osdev.org/Serial_Ports
 [OSDev - CMOS - RTC]: https://wiki.osdev.org/CMOS#The_Real-Time_Clock
+[Grandidierite - Bios Interrupts - int 14h]: https://grandidierite.github.io/bios-interrupts/#interrupt-14h-int-14h-serial-io-services-communication-ports
