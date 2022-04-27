@@ -1,20 +1,18 @@
 .PHONY: build run clean
 
-NAME := registers
 QEMU_DEBUG := -s -S
-QEMU_FLAGS := -serial stdio
 
-${NAME}.img: main.asm
+hello.img: hello.asm
 	@nasm -O0 -f bin -o $@ $<
 
-run: ${NAME}.img
-	@qemu-system-x86_64 \
-		${QEMU_FLAGS} \
+run: hello.img
+	@qemu-system-i386 \
+		-serial stdio \
 		-fda $< -boot a
 
 
-debug: ${NAME}.img
-	@qemu-system-x86_64 ${QEMU_DEBUG} ${QEMU_FLAGS} -fda $< &
+debug: hello.img
+	@qemu-system-i386 ${QEMU_DEBUG} -fda $< &
 	gdb \
 		-ex "set confirm off" \
 		-ex "set disassembly-flavor intel" \

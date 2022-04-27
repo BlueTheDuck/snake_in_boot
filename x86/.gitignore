@@ -1,0 +1,7 @@
+*.img
+*.elf
+*.o
+INT
+*.html
+*.in
+*.out

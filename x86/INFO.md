@@ -3,13 +3,17 @@
   - [Data sizes](#data-sizes)
 - [Modes](#modes)
   - [Real mode](#real-mode)
+  - [Protected mode](#protected-mode)
 - [Interrupts](#interrupts)
     - [`0x10`, video services](#0x10-video-services)
     - [`0x14`, serial port](#0x14-serial-port)
 - [Registers](#registers)
+  - [Special registers](#special-registers)
   - [General purpose](#general-purpose)
   - [Segment](#segment)
       - [Reference](#reference)
+- [Addressing modes](#addressing-modes)
+  - [Direct/displacement](#directdisplacement)
 - [I/O Ports](#io-ports)
   - [Keyboard](#keyboard)
   - [Serial port](#serial-port)
@@ -37,7 +41,9 @@ Sizes are encoded in the instructions themselves, following the this convention:
 
 # Modes
 ## Real mode
+Retro-compatible mode is the default mode used by x86-compatible processors. Its based on the original 8086 processors
 
+## Protected mode
 
 # Interrupts
 Called using `int ###`. Mostly taken from [Wikipedia - BIOS interrupt call]
@@ -54,16 +60,20 @@ Use `DX` to choose port.
 
 | `AH`   | Description          |
 | ------ | -------------------- |
-| 0x01   | Initialize           |
-| 0x02   | Transmit character   |
-| 0x03   | Receive character    |
-| 0x04   | Status               |
+| 0x00   | Initialize           |
+| 0x01   | Transmit character   |
+| 0x02   | Receive character    |
+| 0x03   | Status               |
 
 The character send/received is stored in `AL`
 
 More information on [Grandidierite - Bios Interrupts - Int 14h]
 
 # Registers
+## Special registers
+ * `IP`: Instruction pointer
+
+
 ## General purpose
 
 | Name   | 32 bits   | 16 bits     | 8 bits      |
@@ -79,7 +89,7 @@ More information on [Grandidierite - Bios Interrupts - Int 14h]
 ## Segment
 (Only applies to [Real mode](#real-mode))
 RAM is accessed using "segment registers", this is specified in docs with the syntax: `Segment Register:Index Register`. A simple equation determines the effective address that will be accessed:
-`Physical Address = Segmen Register * 0x10 + Index Register`
+`Physical Address = Segment Register * 0x10 + Index`
 
 Example:
 ```asm
@@ -100,6 +110,10 @@ The following segment registers exist:
 #### Reference
  - [OSDev - Segmentation]
  - [Assembly Language Tuts - Registers]
+
+# Addressing modes
+## Direct/displacement
+A 
 
 # I/O Ports
 Written to, and read form using instructions `out` and `in`. A list of common ports can be found here: [OSDev - I/O Ports]
@@ -147,6 +161,18 @@ out dx, al
 
 # Memory map
 Some ranges and addresses in memory contain specific values or purposes. In [Real mode](#real-mode), 
+
+This is a simplified memory map taken from [OSDev - Memory Map - Real mode address space]:
+| Start         | end      | Purpose                                               |
+| ------------- | -------- | ----------------------------------------------------- |
+| 0x00400       | 0x004FF  | [Bios Data Area](#bios-data-area)                     |
+| 0x00500       | 0x07BFF  | Conventional memory ¹                                 |
+| 0x07C00       | 0x07DFF  | The disk's boot sector is loaded into these 512 bytes |
+|               |          | *Omitted, check OSDev*
+| 0xC0000       | 0xC7FFF  | Video memory                                          |
+
+
+¹ When setting up the registers, the stack pointer should point here (`mov ax, 0x7C00; mov sp, ax`). 
 
 ## Bios Data Area
 
@@ -215,4 +241,5 @@ Here `rng` is a global variable (`rng: resb 1`) that initially holds the seed (A
 [OSDev - PS/2 - Commands]: https://wiki.osdev.org/PS/2_Keyboard#Commands
 [OSDev - Serial Ports]: https://wiki.osdev.org/Serial_Ports
 [OSDev - CMOS - RTC]: https://wiki.osdev.org/CMOS#The_Real-Time_Clock
+[OSDev - Memory Map - Real mode address space]: https://wiki.osdev.org/Memory_Map_(x86)#Real_mode_address_space_.28.3C_1_MiB.29
 [Grandidierite - Bios Interrupts - int 14h]: https://grandidierite.github.io/bios-interrupts/#interrupt-14h-int-14h-serial-io-services-communication-ports

@@ -1,20 +1,23 @@
 .PHONY: build run clean
 
-NAME := keyboard
+NAME := game-1
 QEMU_DEBUG := -s -S
 QEMU_FLAGS := -serial stdio
 
 ${NAME}.img: main.asm
-	@nasm -O0 -f bin -o $@ $<
+	@nasm -W+all -O0 -f bin -o $@ $<
 
+build: ${NAME}.img
+	
+	
 run: ${NAME}.img
-	@qemu-system-x86_64 \
+	@qemu-system-i386 \
 		${QEMU_FLAGS} \
 		-fda $< -boot a
 
 
 debug: ${NAME}.img
-	@qemu-system-x86_64 ${QEMU_DEBUG} ${QEMU_FLAGS} -fda $< &
+	@qemu-system-i386 ${QEMU_DEBUG} ${QEMU_FLAGS} -fda $< &
 	gdb \
 		-ex "set confirm off" \
 		-ex "set disassembly-flavor intel" \
