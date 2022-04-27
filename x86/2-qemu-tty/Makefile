@@ -5,7 +5,8 @@
 NAME := qemu-tty
 QEMU_DEBUG := -s -S
 #QEMU_FLAGS := -serial pipe:../out -monitor stdio
-QEMU_FLAGS := -display none -serial pipe:../qemu
+#QEMU_FLAGS := -display none -serial pipe:../qemu
+QEMU_FLAGS := -display none -serial stdio
 
 build: ${NAME}.img
 

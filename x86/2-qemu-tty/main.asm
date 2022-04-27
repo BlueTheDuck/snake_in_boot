@@ -25,24 +25,28 @@ main:
 	int BIOS_TTY_INT
 	mov ah, BIOS_TTY_REC
 	int BIOS_TTY_INT
-	mov al, 0x40 ; 0x40 = '@'
+	%assign i 0
+	%rep 13
+	mov al, [txt+i] ; 0x40 = '@'
 	mov ah, BIOS_TTY_SEND
 	int BIOS_TTY_INT
+	%assign i i+1
+	%endrep
 
 	; Using ports DX and AX get dirty, but is faster:
-	;mov dx, 0x3f8 ; Set up the serial port
-	;%assign i 0
-	;%rep 12
-	;mov al, [txt+i]
-	;out dx, al
-	;%assign i i+1
-	;%endrep
+	mov dx, 0x3f8 ; Set up the serial port
+	%assign i 0
+	%rep 13
+	mov al, [txt+i]
+	out dx, al
+	%assign i i+1
+	%endrep
     
 hlt:
 	hlt
 	jmp hlt
 
-txt: db "Hello world!"
+txt: db "Hello world!", 10
 
 times 510-($-$$) db 0
 dw 0xAA55
