@@ -43,21 +43,28 @@ _start:
 
     ; Setup snake
     ; Accessing is: snake + idx * 2
-    mov word [snake_len], 4
-    mov word [snake], 20
-    mov word [snake+2], 22
-    mov word [snake+4], 24
-    mov word [snake+6], 26
-    mov ax, 10   ; Wait for 10 ticks
-    mov bx, 28
+    mov word [snake_len], 1
+    mov word [snake], (WIDTH*4+8)*2
+    mov word [snake+2], (WIDTH*4+9)*2
+    mov word [snake+4], (WIDTH*4+10)*2
+    mov word [snake+6], (WIDTH*4+11)*2
 main:
     call print_snake
+    mov ax, 1 ; wait one seconds
     call hold_on ; 
-    mov word di, [snake_len]
-    mov word [snake + edi*2], bx
-    add word [snake_len], 1
-    add bx, 2
-    jmp main
+    ; mov word di, [snake_len]
+    ; mov word [snake + edi*2], bx
+    ; add word [snake_len], 1
+    ; add bx, 2
+    mov bx, (snake_len-1)*2
+    mov ax, [snake+bx]
+    ;movsx byte bx, [dirs+0]
+    mov bx, -2
+    add ax, bx
+    mov [snake+6], ax
+    ;add word [snake+6], 2 * WIDTH
+    call print_snake
+    jmp hlt
 hlt:
 	hlt
 	jmp hlt
@@ -129,6 +136,8 @@ print_num:
 .print_nibble_to_serial:
     out dx, al
     ret
+
+dirs: db -(WIDTH*2), 2, 25*2, -2
 
 times 510-($-$$) db 0
 dw 0xAA55
