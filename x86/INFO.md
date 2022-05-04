@@ -6,12 +6,16 @@
   - [Protected mode](#protected-mode)
 - [Interrupts](#interrupts)
     - [`0x10`, video services](#0x10-video-services)
+      - [Video modes](#video-modes)
     - [`0x14`, serial port](#0x14-serial-port)
 - [Registers](#registers)
   - [Special registers](#special-registers)
   - [General purpose](#general-purpose)
   - [Segment](#segment)
       - [Reference](#reference)
+- [Opcodes](#opcodes)
+  - [Stack](#stack)
+  - [Segments](#segments)
 - [Addressing modes](#addressing-modes)
   - [Direct/displacement](#directdisplacement)
 - [I/O Ports](#io-ports)
@@ -31,12 +35,12 @@ NASM is the assembler used in this project.
 # Technical words
 ## Data sizes
 Sizes are encoded in the instructions themselves, following the this convention:
-| Name   | Affix   | Size      | Declare   | Reserve   |
-| ------ | ------- | --------- | --------- | --------- |
-| Byte   | B       | 8 bits    | DB        | RESB      |
-| Word   | W       | 16 bits   | DW        | RESW      |
-| Double | D       | 32 bits   | DD        | RESD      |
-| Quad   | Q       | 64 bits   | DQ        | RESQ      |
+| Name   | Affix | Size    | Declare | Reserve |
+| ------ | ----- | ------- | ------- | ------- |
+| Byte   | B     | 8 bits  | DB      | RESB    |
+| Word   | W     | 16 bits | DW      | RESW    |
+| Double | D     | 32 bits | DD      | RESD    |
+| Quad   | Q     | 64 bits | DQ      | RESQ    |
 
 
 # Modes
@@ -51,19 +55,25 @@ Called using `int ###`. Mostly taken from [Wikipedia - BIOS interrupt call]
 ### `0x10`, video services
 Video settings. Takes parameters on `A` and `C`. (`A` selects subcommand). 
 
- * Subcommand `0x0003` sets the video mode
+ * Subcommand `0x0003` sets the video mode to "VGA mode 3"
  * Subcommand `0x0103` sets the start and end scanline of the cursor. The low nibble of `CH` sets when to start drawing, while `CL` when to end. If `CH > CL` then nothing is drawn
+
+#### Video modes
+
+| Mode  | Resolution       |
+| ----- | ---------------- |
+| VGA 3 | 80x25 characters |
 
 ### `0x14`, serial port
 Reads or writes a single byte to the serial port. An alternative method exists: [I/O Ports](#io-ports)
 Use `DX` to choose port.
 
-| `AH`   | Description          |
-| ------ | -------------------- |
-| 0x00   | Initialize           |
-| 0x01   | Transmit character   |
-| 0x02   | Receive character    |
-| 0x03   | Status               |
+| `AH` | Description        |
+| ---- | ------------------ |
+| 0x00 | Initialize         |
+| 0x01 | Transmit character |
+| 0x02 | Receive character  |
+| 0x03 | Status             |
 
 The character send/received is stored in `AL`
 
@@ -76,12 +86,12 @@ More information on [Grandidierite - Bios Interrupts - Int 14h]
 
 ## General purpose
 
-| Name   | 32 bits   | 16 bits     | 8 bits      |
-| ------ | --------- | ----------- | ----------- |
-| Acc.   | `EAX`     | `AX`        | `AH`/`AL`   |
-| Base   | `EBX`     | `BX`        | `BH`/`BL`   |
-| Count  | `ECX`     | `CX`        | `CH`/`CL`   |
-| Data   | `EDX`     | `DX`        | `DH`/`DL`   |
+| Name  | 32 bits | 16 bits | 8 bits    |
+| ----- | ------- | ------- | --------- |
+| Acc.  | `EAX`   | `AX`    | `AH`/`AL` |
+| Base  | `EBX`   | `BX`    | `BH`/`BL` |
+| Count | `ECX`   | `CX`    | `CH`/`CL` |
+| Data  | `EDX`   | `DX`    | `DH`/`DL` |
 
 * `_X` access the lower half of `E_X`
 * `_H` access the higher half of `_X`, `_L` the lower
@@ -110,6 +120,23 @@ The following segment registers exist:
 #### Reference
  - [OSDev - Segmentation]
  - [Assembly Language Tuts - Registers]
+
+# Opcodes
+List, examples and descriptions of many useful (or hard to remember) opcodes
+
+## Stack
+
+| Opcode  | Description                        |
+| ------- | ---------------------------------- |
+| `PUSHA` | Push all general purpose registers |
+| `POPA`  | Pop all general purpose registers  |
+
+## Segments
+
+| Opcode      | Description                        |
+| ----------- | ---------------------------------- |
+| `stosb/w/d` | Stores one `B/W/D` on `[ES:(E)DI]` |
+
 
 # Addressing modes
 ## Direct/displacement
@@ -163,13 +190,13 @@ out dx, al
 Some ranges and addresses in memory contain specific values or purposes. In [Real mode](#real-mode), 
 
 This is a simplified memory map taken from [OSDev - Memory Map - Real mode address space]:
-| Start         | end      | Purpose                                               |
-| ------------- | -------- | ----------------------------------------------------- |
-| 0x00400       | 0x004FF  | [Bios Data Area](#bios-data-area)                     |
-| 0x00500       | 0x07BFF  | Conventional memory ¹                                 |
-| 0x07C00       | 0x07DFF  | The disk's boot sector is loaded into these 512 bytes |
-|               |          | *Omitted, check OSDev*
-| 0xC0000       | 0xC7FFF  | Video memory                                          |
+| Start   | end     | Purpose                                               |
+| ------- | ------- | ----------------------------------------------------- |
+| 0x00400 | 0x004FF | [Bios Data Area](#bios-data-area)                     |
+| 0x00500 | 0x07BFF | Conventional memory ¹                                 |
+| 0x07C00 | 0x07DFF | The disk's boot sector is loaded into these 512 bytes |
+|         |         | *Omitted, check OSDev*                                |
+| 0xC0000 | 0xC7FFF | Video memory                                          |
 
 
 ¹ When setting up the registers, the stack pointer should point here (`mov ax, 0x7C00; mov sp, ax`). 
