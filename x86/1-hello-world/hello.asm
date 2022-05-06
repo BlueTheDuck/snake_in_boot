@@ -1,4 +1,5 @@
-org 0x7C00
+bits 16
+global _start
 
 %macro declstr 1
 	%strlen c %1
@@ -28,6 +29,7 @@ _start:
 	mov cl, 0x00 ; cursor becomes invisible
 	int 0x10
 
+main:
 	mov edx, 0
 
 	mov ah, 0x0E
@@ -44,6 +46,9 @@ _start:
 	call write
 	mov esi, txt+4
 	mov ecx, [txt]
+	call write
+	mov esi, halt_string+4
+	mov ecx, [halt_string]
 	call write
 hlt:
 	jmp hlt
@@ -72,6 +77,8 @@ print:
 
 txt:
 	declstr "Hello world!"
+halt_string:
+	declstr "Halt!"
 
 times 510-($-$$) db 0
 dw 0xAA55
