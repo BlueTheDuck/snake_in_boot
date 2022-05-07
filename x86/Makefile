@@ -1,5 +1,5 @@
-.DEFAULT: run
-.PHONY: build run clean run-debugger debug
+.DEFAULT: build
+.PHONY: build run clean run-debugger debug all
 .PRECIOUS: %.elf %.bin
 
 AS_FILES ?= 
@@ -11,13 +11,15 @@ QEMU_FLAGS := -serial stdio -boot a
 	@nasm -O0 -f elf32 -g3 -F dwarf $< -o $@
 
 ${NAME}.elf: ${O_FILES}
-	ld -y _start -nostdlib -Ttext=0x7C00 -m elf_i386 -o $@ $^
+	@ld -y _start -nostdlib -Ttext=0x7C00 -m elf_i386 -o $@ $^
 
 %.bin: %.elf
-	objcopy -O binary $< $@
+	@objcopy -O binary $< $@
 
 %.sym: %.elf
 	@objdump -t -C $< > ${NAME}.dump.sym
+
+build: ${NAME}.bin
 
 run: ${NAME}.bin
 	@qemu-system-i386 ${QEMU_FLAGS} -fda $<
@@ -37,3 +39,8 @@ debug: ${NAME}.bin ${NAME}.elf
 
 clean:
 	rm -f *.o *.bin *.elf *.img *.sym
+
+SUB := $(shell find . -mindepth 2 -name "Makefile" -exec dirname {} \;)
+all:
+	echo ${SUB}
+	for dir in ${SUB}; do (cd "$$dir" && make build); done
