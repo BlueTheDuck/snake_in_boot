@@ -1,0 +1,29 @@
+name: Build all ROMs
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+          
+    - name: Install dependencies
+      run: sudo apt-get -y install nasm
+            
+    - name: Make all
+      run: make all
+      
+    - name: Upload ROM images
+      uses: actions/upload-artifact@v3.0.0
+      with:
+        name: ROMs
+        path: ${{ github.workspace }}/**/*.bin
+        
+
