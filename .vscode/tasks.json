@@ -4,17 +4,50 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build",
+            "label": "Clean",
             "type": "shell",
+            "command": "make",
+            "args": [
+                "clean"
+            ],
+            "problemMatcher": [],
+            "options": {
+                "cwd": "${fileDirname}"
+            }
+        },
+        {
+            "label": "Build (default name)",
+            "type": "shell",
+            "command": "make",
+            "args": [
+                "NAME=main",
+                "main.bin"
+            ],
             "options": {
                 "cwd": "${fileDirname}"
             },
-            "command": "make build",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "label": "Run debugger",
+            "type": "shell",
+            "isBackground": true,
+            "command": "make",
+            "args": [
+                "NAME=main",
+                "run-debugger"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [],
+            "dependsOn": [
+                "Build (default name)"
+            ]
         }
     ]
 }
