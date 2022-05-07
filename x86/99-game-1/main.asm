@@ -1,3 +1,6 @@
+bits 16
+global _start
+
 WIDTH equ 80
 HEIGHT equ 25
 
@@ -8,8 +11,6 @@ CMOS_REGISTER_SECONDS equ 0x00
 SERIAL_OUT equ 0x3F8
 
 TICK equ 0x046C
-
-org 0x7C00
 
 section .text
 _start:
@@ -43,33 +44,60 @@ _start:
 
     ; Setup snake
     ; Accessing is: snake + idx * 2
-    mov word [snake_len], 1
+    mov word [snake_len], 4
     mov word [snake], (WIDTH*4+8)*2
     mov word [snake+2], (WIDTH*4+9)*2
     mov word [snake+4], (WIDTH*4+10)*2
     mov word [snake+6], (WIDTH*4+11)*2
 main:
     call print_snake
-    mov ax, 1 ; wait one seconds
+    mov ax, 1 ; wait one second
     call hold_on ; 
     ; mov word di, [snake_len]
     ; mov word [snake + edi*2], bx
     ; add word [snake_len], 1
     ; add bx, 2
-    mov bx, (snake_len-1)*2
+    mov word bx, [snake_len]
+    sub bx, 1
+    add bx, bx
     mov ax, [snake+bx]
     ;movsx byte bx, [dirs+0]
-    mov bx, -2
-    add ax, bx
-    mov [snake+6], ax
+    ;mov bx, -4
+    ;add ax, bx
+    cmp ax, WIDTH*2
+    jl loose
+    cmp ax, (WIDTH*HEIGHT-WIDTH)*2
+    jg loose
+    push ax
+    and ax, 0x00FF
+    cmp ax, 0x0000
+    je loose
+    cmp ax, 0x00FF
+    je loose
+    pop ax
+    add word ax, [dirs+3*2]
+    mov [snake+bx], ax
     ;add word [snake+6], 2 * WIDTH
     call print_snake
-    jmp hlt
+    jmp main
+    ;jmp hlt
 hlt:
 	hlt
 	jmp hlt
 
-
+loose:
+    mov dx, 0x3f8 ; Set up the serial port
+	mov al, 'L'
+	out dx, al
+	mov al, 'o'
+	out dx, al
+	mov al, 's'
+	out dx, al
+	mov al, 't'
+	out dx, al
+    mov al, 10
+	out dx, al
+    jmp hlt
 
 
 
@@ -137,7 +165,8 @@ print_num:
     out dx, al
     ret
 
-dirs: db -(WIDTH*2), 2, 25*2, -2
+constants:
+dirs: dw -WIDTH*2, 2, WIDTH*2, -2 ; Up, Right, Down, Left
 
 times 510-($-$$) db 0
 dw 0xAA55

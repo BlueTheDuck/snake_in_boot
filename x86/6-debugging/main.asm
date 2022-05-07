@@ -1,5 +1,5 @@
-;org 0x7C00
 bits 16
+global _start
 
 %macro declstr 1
 	%strlen c %1

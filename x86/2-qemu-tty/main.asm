@@ -1,10 +1,11 @@
+bits 16
+global _start
+extern halt
+
 BIOS_TTY_INT equ 0x14
 BIOS_TTY_SEND equ 0x01
 BIOS_TTY_REC equ 0x02
 BIOS_TTY_STATUS equ 0x03
-
-;org 0x7C00
-bits 16
 
 section .text
 _start:
@@ -19,6 +20,7 @@ _start:
 	mov sp, 0x7C00
 main:
 	; Using interrupts only AX gets dirty:
+ints:
 	mov dx, 0x0 ; Use COM0
 	mov al, 0x00
 	mov ah, BIOS_TTY_STATUS
@@ -33,6 +35,7 @@ main:
 	%assign i i+1
 	%endrep
 
+ports:
 	; Using ports DX and AX get dirty, but is faster:
 	mov dx, 0x3f8 ; Set up the serial port
 	%assign i 0
@@ -41,10 +44,7 @@ main:
 	out dx, al
 	%assign i i+1
 	%endrep
-    
-hlt:
-	hlt
-	jmp hlt
+    call halt
 
 txt: db "Hello world!", 10
 

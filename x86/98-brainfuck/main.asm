@@ -1,8 +1,9 @@
+bits 16
+global _start
+
 BIOS_TTY_INT equ 0x14
 BIOS_TTY_SEND equ 0x01
 BIOS_TTY_REC equ 0x02
-
-bits 16
 
 section .text
 _start:

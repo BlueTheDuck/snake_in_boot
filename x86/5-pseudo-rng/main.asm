@@ -1,4 +1,5 @@
-org 0x7C00
+bits 16
+global _start
 
 CMOS_ADDRESS_REGISTER equ 0x70
 CMOS_DATA_REGISTER equ 0x71

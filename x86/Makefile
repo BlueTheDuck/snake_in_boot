@@ -2,17 +2,19 @@
 .PHONY: build run clean run-debugger debug
 .PRECIOUS: %.elf %.bin
 
+AS_FILES ?= 
+O_FILES := ${AS_FILES:.asm=.o}
 QEMU_DEBUG := -s -S
 QEMU_FLAGS := -serial stdio -boot a
 
 %.o: %.asm
 	@nasm -O0 -f elf32 -g3 -F dwarf $< -o $@
 
-%.elf: %.o
-	@ld -nostdlib -Ttext=0x7C00 -m elf_i386 -o $@ $<
+${NAME}.elf: ${O_FILES}
+	ld -y _start -nostdlib -Ttext=0x7C00 -m elf_i386 -o $@ $^
 
 %.bin: %.elf
-	@objcopy -O binary $< $@
+	objcopy -O binary $< $@
 
 %.sym: %.elf
 	@objdump -t -C $< > ${NAME}.dump.sym

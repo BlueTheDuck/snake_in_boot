@@ -1,4 +1,5 @@
-org 0x7C00
+bits 16
+global _start
 
 section .text
 _start:

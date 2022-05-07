@@ -1,4 +1,5 @@
-org 0x7C00
+bits 16
+global _start
 
 WIDTH equ 80 ; 80 characters / 160 bytes
 HEIGHT equ 48 ; 48 lines
